@@ -19,7 +19,7 @@ We can now compile our own stubfiles in a more automatic fasion provided that we
 the already existing Cython Code Writer and it's Compilers for help.
 
 I re-designed the original pyi compiler and made some modifications to it and then I
-wrapped in __click__ as it's argument parser for now . 
+wrapped the compiler around __click__ as it's argument parser for now . 
 
 Knowing how exciting this could end up being great as well as revolutionary , I wanted to 
 give you a Demo of this possible upcomming feature that I wish to have added to Cython istelf in the future

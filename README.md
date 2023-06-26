@@ -31,3 +31,26 @@ when cython adds these features we all
 desperately need into it's own tools...
 
 This is Currently Experimental But I plan to start with testing this on a larger scale with PyImgui and post my interesting results here especially like the way I had kept a dev-journal with winloop see: https://github.com/Vizonex/winloop so that you can also keep track of my progress...
+
+## Requirements
+click and cython are both required to get this to work as this tool attempts to use/have direct acess to the cython compiler itself...
+
+```
+pip install click cython
+```
+
+## Commandline Example 
+
+to use cd to the src directory and run the Cystub.py module to start using it... 
+```
+python Cystub.py --help
+```
+ 
+Compiling cython code. Here's an example if you need more help look into what I've written in Cystub...
+```
+python Cystub.py -o output yourmodule.pyx othermodule.pxd 
+```
+
+## This tool is not entirely ready to be used on a wide-scale yet but I Welcome Any Contributors with open arms...
+There's still a few things I have left to add or change so you'll have to be patient with me but if your feeling egar to have these things or implemented/finished sooner, feel free to start contributing to what I have left on the table. When I get this tool to be stable I'm going to make a pull request to cython and start merging with the PyiCompiler...
+

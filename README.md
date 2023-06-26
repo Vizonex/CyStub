@@ -22,7 +22,7 @@ I re-designed the original pyi compiler and made some modifications to it and th
 wrapped the compiler around __click__ as it's argument parser for now . 
 
 Knowing how exciting this could end up being as well as revolutionary , I wanted to 
-give you a Demo of this possible upcomming feature that I wish to have added to Cython istelf in the future
+give you a Demo of this possible upcomming feature that I wish to have added to Cython itself in the future
 by currently giving it it's own Temporary repository until 
 I can have the time to move this functionality straight into cython itself....
 

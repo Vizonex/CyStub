@@ -57,7 +57,7 @@ This might require a rewrite of what I've done so far but I'll upload another fi
 - cdef classes and python classes so they can be annoted when quotes are not nessesary...
 - I'll be sure regristry is fast by using a dictionary for help this will make especially larger files easier to load. This however might just be an extra flag so that systems that don't have a whole lot of ram avalible can ignore this feature if needed.
 
-Here's a visual representation of exactly what I'm reffering to:
+Here's a visual representation of exactly what I'm referring to:
 ```python
 # -- example.pyi --
 

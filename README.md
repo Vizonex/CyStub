@@ -55,6 +55,6 @@ python Cystub.py -o output yourmodule.pyx othermodule.pxd
 There's still a few things I have left to add or change so you'll have to be patient with me but if your feeling egar to have these things or implemented/finished sooner, feel free to start contributing to what I have left on the table. When I get this tool to be stable I'm going to make a pull request to cython and start merging with the PyiCompiler...
 
 ## What I'm working with
-I'm Currently working off of my own stubfiles that I am sort of reverse-engineering the definitions for the cython all of the cython nodes as I go along 
+I'm Currently working off of my own stubfiles that I am sort of reverse-engineering the definitions for the cython complier and all of it's own cython nodes as I go along 
 https://gist.github.com/Vizonex/58f412067403975be3450bdd0b91298f
 I'm working with VS Code which maybe also be part of my problem even though I like completeness in order to verify that what I'm doing is absolutely correct...

@@ -49,7 +49,7 @@ parts of functions before-hand as a two step method rather than just one, like a
 
 I'll also try to make a smarter system so that it's not scanning one entirely one file so that way all imported modules and including all `.pxi` `.py` `.pyx` and `.pxd` and all external definitions in files are also being accounted for like a roll-call/head-count ... 
 
-One the system works I'll then start optimizing. The other thing I thought about was using quotes when the object hasn't appeared or been declared yet after a the roll-call. This may require a new-class maybe that can be a new argument of it's own.
+Once the system works, I'll then start optimizing. The other thing I thought about was using quotes when the object hasn't appeared or been declared yet after the object has been declared. This may require a new-class maybe that can be a new argument of it's own.
 
 This might require a rewrite of what I've done so far but I'll upload another file before called VariableCatcher or VariableRegistry unlike the one already made. Which aims to read nodes for all of the following
 

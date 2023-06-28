@@ -58,3 +58,6 @@ There's still a few things I have left to add or change so you'll have to be pat
 I'm Currently working off of my own stubfiles that I am sort of reverse-engineering the definitions for the cython complier and all of it's own cython nodes as I go along 
 https://gist.github.com/Vizonex/58f412067403975be3450bdd0b91298f
 I'm working with VS Code which maybe also be part of my problem even though I like to have completeness in my code in order to verify that what I'm doing is absolutely correct...
+
+I'll be asking some folks I know from one of the python discord servers for feedback 
+as well since I was able to get some guidence from them with winloop. 

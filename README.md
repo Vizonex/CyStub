@@ -61,3 +61,5 @@ I'm working with VS Code which maybe also be part of my problem even though I li
 
 I'll be asking some folks I know from one of the python discord servers for feedback 
 as well since I was able to get some guidence from them with winloop. 
+
+I video will be out likely tomrrroww about why I'm making this compiler as well as attempt to inspire people come and give me some assistance...

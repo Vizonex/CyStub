@@ -12,7 +12,7 @@ the incompatabilty with VS Code has thrown many people off including myself , so
 the other issue is that the compiled versions of your modules have to be slightly reserved engineered
 if you want all the nitty gritty details needed when using your module...
 
-Currently Projects such as __PyImgui__ and __PyDuckTape2__ can be extremely difficult to navigate when it's hoverlist is not avalible. 
+Currently libraries that utilize cython such as __PyImgui__ and __PyDukTape2__ can be extremely difficult to navigate when it's hoverlist is not avalible. 
 
 But now I bring a __New Solution__ to the table ...
 We can now compile our own stubfiles in a more automatic fasion provided that we are using 
@@ -57,4 +57,4 @@ There's still a few things I have left to add or change so you'll have to be pat
 ## What I'm working with
 I'm Currently working off of my own stubfiles that I am sort of reverse-engineering the definitions for the cython complier and all of it's own cython nodes as I go along 
 https://gist.github.com/Vizonex/58f412067403975be3450bdd0b91298f
-I'm working with VS Code which maybe also be part of my problem even though I like completeness in order to verify that what I'm doing is absolutely correct...
+I'm working with VS Code which maybe also be part of my problem even though I like to have completeness in my code in order to verify that what I'm doing is absolutely correct...

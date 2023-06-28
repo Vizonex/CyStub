@@ -42,4 +42,4 @@ yellow = 1
 blue = 2
 ```
 
-
+I have already generated stubfiles for some of cython's nodes in order to help me out since I'm working with vs code and I wanted to be sure that what I end up doing is absolutely correct.

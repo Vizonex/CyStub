@@ -6,7 +6,6 @@ This tool was Inspired by this pull request seen here: https://github.com/cython
 Which didn't make it into production...
 
 
-
 Over the years people have had to overcome the hard challege of writing stubfiles manually and 
 the incompatabilty with VS Code has thrown many people off including myself , some of which takes hours just to write manually down,
 the other issue is that the compiled versions of your modules have to be slightly reserved engineered
@@ -62,4 +61,5 @@ I'm working with VS Code which maybe also be part of my problem even though I li
 I'll be asking some folks I know from one of the python discord servers for feedback 
 as well since I was able to get some guidence from them with winloop. You will not find my actual alias there but I'm planning to swap the users soon . I mainly had a different alias in there because it's an account I made for guarding a bunch of my experimental discord bots. 
 
-I video will be out likely tomorrow about why I'm making this compiler as well as attempt to inspire people come and give me some assistance...
+## Video
+- https://www.youtube.com/watch?v=hIjV9vX0uiI

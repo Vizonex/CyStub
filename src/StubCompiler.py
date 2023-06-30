@@ -7,8 +7,9 @@ from Cython.Compiler import Version
 
 # This projects is really my rough draft for the pull request that I'm planning on doing...
 
-from Compiler.Nodes import *
-from Compiler.ExprNodes import * 
+# I will add the Custom Things from my gist over here in the future but for now from your POV use Cython's Compiler unless you need the typehints that I've made
+from Cython.Compiler.Nodes import *
+from Cython.Compiler.ExprNodes import * 
 from Cython.Compiler.PyrexTypes import type_identifier
 from Cython.Compiler.ModuleNode import ModuleNode
 from Cython.Compiler.PyrexTypes import CIntType, CArrayType

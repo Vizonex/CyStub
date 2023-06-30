@@ -3,22 +3,19 @@ from contextlib import contextmanager
 from Cython.Compiler import Version
 
 # Inspired by and based around https://github.com/cython/cython/pull/3818
-# by with some less lazy changes to it and maybe a few additions and optimzations...
+# by with some less lazy changes to it and maybe a few optimzations...
 
-# NOTE This project is really my rough draft for the big pull request that 
-# I'm planning on doing once this works and is done (No crazy bugs) I'll start working on the PR...
+# This projects is really my rough draft for the pull request that I'm planning on doing...
 
-from Cython.Compiler.Nodes import *
-from Cython,Compiler.ExprNodes import * 
+from Compiler.Nodes import *
+from Compiler.ExprNodes import * 
 from Cython.Compiler.PyrexTypes import type_identifier
 from Cython.Compiler.ModuleNode import ModuleNode
 from Cython.Compiler.PyrexTypes import CIntType, CArrayType
 
 from typing import Optional, Callable
 
-from Cython.Compiler.Nodes import CClassDefNode, CFuncDefNode, SingleAssignmentNode
-import sys
-
+import sys 
 
 if sys.version_info >= (3, 9):
     typing_module = "typing"
@@ -29,7 +26,7 @@ else:
 
 
 def translate_annotations(node, type_conv:Callable[..., str]) -> list[str]:
-    func_annotations = []
+    func_annotations:list[str] = []
     for arg, py_arg in zip(node.type.args, node.declarator.args):
 
         annotation = ""
@@ -43,7 +40,7 @@ def translate_annotations(node, type_conv:Callable[..., str]) -> list[str]:
             # TODO See if there's a better way to go about finding an ellipsis...
             annotation += " = ..."
         func_annotations.append(annotation)
-    
+    return func_annotations
 
 
 # TODO (Vizonex) Maybe make a New variable Registry class to help with Registry managment?
@@ -59,7 +56,7 @@ class VariableStack:
 # If you have a problem with any of my type-hints provided 
 # I can always remove them when I'm done making my Pull Request - Vizonex
 
-def ctype_name(arg,node:Node):
+def ctype_name(arg,node:"Node"):
 
     # TODO Make a better conversion function...
     if arg.type and hasattr(arg.type, "name"):
@@ -67,38 +64,12 @@ def ctype_name(arg,node:Node):
         # TODO see about using a check to see if users wants to include cython's shadow varaibales...
         return arg.type.name
         
-    py_name = node.type.return_type.py_type_name()
-    if "(int, long)":
+    py_name = node.type.return_type.py_type_name() # type: ignore
+    if "(int, long)" == py_name:
         return "int"
     
     return py_name
 
-# Instead of doing it into C we're doing it backwards...
-def translate_base_type_to_py(
-    base:CSimpleBaseTypeNode, 
-    use_typing:bool=False, 
-    cython_shadow:bool=False # cython shadow typehints feature coming soon...
-    ):
-
-    if not base.is_basic_c_type:
-        # Likely that it's already a python object that's being handled...
-        return base.name 
-    
-    elif base.name == "bint":
-        # TODO Implement as bool unless cython_shadow's flag is set...
-        return "bool"
-    
-    ctype = PyrexTypes.simple_c_type(base.signed, base.longness,base.name)
-
-    # TODO (Vizonex) implement Pyrex to cython shadow typehints converter...
-    if isinstance(ctype, PyrexTypes.CIntType):
-        return "int"
-    
-    elif isinstance(ctype, PyrexTypes.CFloatType):
-        return "float"
-    
-    # return "Any" For now unless typing is ignored, I will change this in the future...
-    return "Any" if use_typing else None
 
 
 # FIXME I'm planning on dropping these different node typehints in the future 
@@ -136,12 +107,16 @@ class PyiWriter(DeclarationWriter):
         # These will be our containers for variables and nodes alike...
         self.stack: list[VariableStack] = []
 
+        self.translation_table:dict[str,str] = {}
+        """Used as an eternal resource for translating ctypedefines python-types"""
+
         self.use_typing : bool = False
         """if true we must import typing's generator typehint..."""
-
+        self.use_shadow: bool = False
+        """allows for cython's pure-python branch variables to be used as type-hints"""
 
     # -- Extra line handlers --
-    # TODO Maybe add indent_next_lines to the main cython module in the final PR to be more organized if proven to be faster?
+    # TODO Maybe add indent_next_lines to the main cython code to be more organized?
     @contextmanager
     def indent_next_lines(self):
         """Made for use as a context manager it is identical to doing the following
@@ -156,6 +131,49 @@ class PyiWriter(DeclarationWriter):
         self.indent()
         yield 
         self.dedent()
+    
+    def translate_pyrex_type(self, ctype):
+        # TODO (Vizonex) implement Pyrex to cython shadow typehints converter...
+        if isinstance(ctype, PyrexTypes.CIntType):
+            return "int"
+
+        elif isinstance(ctype, PyrexTypes.CFloatType):
+            return "float"
+
+        # return "Any" For now unless typing is ignored, I will change this in the future...
+        return "Any" if self.use_typing else None
+
+    
+    # Instead of doing it into C, we're doing it backwards...
+    def translate_base_type_to_py(
+        self,
+        base:CSimpleBaseTypeNode
+        ):
+
+        # Try checking our table first...
+        if self.translation_table.get(base.name):
+            # We have it...
+            return self.translation_table[base.name]
+
+        elif base.name == "object":
+            return "object"
+
+        elif base.name in ("unicode","basestring"):
+            return "str"
+
+        elif not base.is_basic_c_type:
+            # Likely that it's already a python object that's being handled...
+            # execpt for basestring and unicode...
+            return base.name 
+
+        elif base.name == "bint":
+            # TODO Implement as bool unless cython_shadow's flag is set...
+            return "bool"
+
+        ctype = PyrexTypes.simple_c_type(base.signed, base.longness, base.name) # type: ignore
+
+        return self.translate_pyrex_type(ctype)
+        
 
 
     def emptyline(self):
@@ -164,6 +182,7 @@ class PyiWriter(DeclarationWriter):
     def visit(self, obj):
         return self._visit(obj)
     
+
     def visitchildren_indented(self, parent_node:Node, attrs:Optional[dict] = None):
         """Visits Node's children but with 4 spaces moved over when writing below is an example to visualize
     what's going on...
@@ -189,20 +208,56 @@ class PyiWriter(DeclarationWriter):
     
     def visit_CImportStatNode(self,node):
         return node
+    
+    def visit_CDefExternNode(self,node:CDefExternNode):
+        self.visitchildren(node)
+
+    def visit_CEnumDefNode(self, node:CEnumDefNode):
+        # TODO Figure out how to define an enum-class via typehints...
+
+        # NOTE It seems that only public will make the enum acessable to python so 
+        # I'll just have it check if the enums will be public for now...
+        if node.visibility == "public":
+            # Enum's name is not in or visable in the final product beacuse 
+            # it's not an enum class so do not indent here...
+            # Also Leave visit_CEnumDefItemNode up to the previous 
+            # class's function...
+
+            self.putline("# -- enum %s --" % node.name)
+            self.visitchildren(node)
+
+        # TODO Add some sort of enumclass variable check...
+        return node 
+    
+    def check_CVarDefNode(self,node:CVarDefNode):
+        if node.in_nogil_context:
+            return False
+    
+    # Used in our translation table that I will be writing shortly...
+    def visit_CTypeDefNode(self,node:CTypeDefNode):
+        if isinstance(node.declarator, CNameDeclaratorNode):
+            # Register a new type to use in our translation table...
+            self.translation_table[node.declarator.name] = self.translate_base_type_to_py(node.base_type)
 
     
+    def visit_CStructOrUnionDefNode(self, node:CStructOrUnionDefNode):
+        # Currenlty I don't know what to do here yet but ignoring this tiggers problems currently...
+        return node
+        
 
-    def visit_CVarDefNode(self,node: CVarDefNode):
+    def visit_CVarDefNode(self, node: CVarDefNode):
 
         # if they aren't public or readonly then the variable inside of a class 
         # or outisde should be ignored by default...
+
+
         if node.visibility in ["readonly", "public"]:
 
             # TODO (Vizonex) handle ctypedef nodes and give them a 
             # new type-registry system to help translate all incomming variables... 
 
-            # TODO (Vizonex) Maybe Make all C variables hidden by default instead excluding Class Objects found?.... 
-            py_name = translate_base_type_to_py(node.base_type, self.use_typing)
+   
+            py_name = self.translate_base_type_to_py(node.base_type)
             
             # Final check...
             if py_name:
@@ -248,9 +303,10 @@ class PyiWriter(DeclarationWriter):
     # TODO add a cython shadow variable registry system to help import them all 
     # to the frontend variables nessesary to the pyi stub along with a watermark...
 
-    def visit_SingleAssignmentNode(self, node: SingleAssignmentNode):
+    def visit_SingleAssignmentNode(self, node: SingleAssignmentNode): # type: ignore
         if not isinstance(node.rhs, ImportNode):
-            return node 
+            return node
+
 
         module_name = node.rhs.module_name.value
 
@@ -281,20 +337,39 @@ class PyiWriter(DeclarationWriter):
         """wirtes a new class to a stub file..."""
 
         # TODO Maybe Add a Subclass checker to see if the variable was subclassed?... 
-        self.putline("class %s:" % node.class_name)
-        self.stack.append(VariableStack(node.class_name))
+        
 
-        # visit the classnode's children...
-        self.visitchildren_indented(node)
+        if isinstance(node,PyClassDefNode):
+            self.put("class %s" % node.name)
+            if getattr(node,"bases",None) and isinstance(node.bases, TupleNode):
+                self.put("(")
+                self.put(",".join([name.name for name in node.bases.args]))
+                self.endline("):")
+            else:
+                self.put(":")
+            
+            self.stack.append(VariableStack(node.name))
+            name = node.name 
+
+        else:
+            self.put("class %s" % node.class_name)
+            if getattr(node,"bases",None) and isinstance(node.bases, TupleNode):
+                self.put("(")
+                self.put(",".join([name.name for name in node.bases.args]))
+                self.endline("):")
+            else:
+                self.endline(":")
+            self.stack.append(VariableStack(node.class_name))
+            name = node.class_name
+
+        # visit the classnode's children... 
+        self.visitchildren_indented(node) # type:ignore 
 
         # check that we didn't screw up as a safety measure...
-        assert self.LastRegisteredVariable.name == node.class_name
+        assert self.LastRegisteredVariable.name == name
 
         if self.LastRegisteredVariable.empty:
             self.set_Stack_As_Occupied()
-        
-            with self.indent_next_lines():
-                self.putline("pass")
 
         self.stack.pop()
         self.emptyline()
@@ -341,10 +416,10 @@ class PyiWriter(DeclarationWriter):
         self.startline("@")
 
         if isinstance(decorator, NameNode):
-            self.put("%s" % decorator.name)
+            self.endline("%s" % decorator.name)
         else:
             assert isinstance(decorator, AttributeNode)
-            self.put("%s.%s" % (decorator.obj.name,decorator.attribute))
+            self.endline("%s.%s" % (decorator.obj.name,decorator.attribute))
         
     def annotation_Str(self, annotation:ExprNode) -> str:
         return annotation.name
@@ -353,7 +428,7 @@ class PyiWriter(DeclarationWriter):
     def print_DefNode(self,node:DefNode):
         func_name = node.name
 
-        if self.hide_Function(func_name):
+        if self.is_forbidden(func_name):
             return node
 
         self.set_Stack_As_Occupied()
@@ -361,9 +436,13 @@ class PyiWriter(DeclarationWriter):
         
         def argument_str(arg:CArgDeclNode):
             value = arg.declarator.name
+
             if arg.annotation is not None:
                 value += (": %s" % self.annotation_Str(arg.annotation))
 
+            elif arg.base_type.name:
+                value += ": %s" % self.translate_base_type_to_py(arg.base_type)
+                
             if (arg.default is not None or
                 arg.default_value is not None):
                 value += " = ..."
@@ -405,7 +484,7 @@ class PyiWriter(DeclarationWriter):
             # This is a little bit different than the original pull request 
             # since I wanted there to be propper typehints given to all the 
             # objects which is why I added the "Generator" as a typehint & keyword...
-            annotation = self.annotation_Str(retype)
+            annotation = self.annotation_Str(retype) # type: ignore
             if (node.is_generator and not annotation.startswith("Generator") and self.use_typing):
                 # TODO (Vizonex) figure out how the extract the other two required variables...
                 # Also the function could be an Iterator but I hadn't added the "__iter__" function name-check just yet...
@@ -438,7 +517,10 @@ class PyiWriter(DeclarationWriter):
             # TODO Check if this is still existant...
             self.putline("%s: %s = ..." % (name, node.lhs.annotation.string.value))
         else:
-            self.putline("%s = ...")
+            self.putline("%s : %s" % (name, self.translate_pyrex_type(node.rhs.type)))
+
+    def visit_NameNode(self, node:NameNode):
+        return node
 
     def visit_ExprStatNode(self,node:ExprStatNode):
         if isinstance(node.expr, NameNode):
@@ -446,11 +528,11 @@ class PyiWriter(DeclarationWriter):
             self.set_Stack_As_Occupied()
 
             expr = node.expr
-            name = expr.name
+            name = expr.name # type: ignore
             if expr.annotation:
-                self.putline("%s: %s" % (name, self.annotation_Str(expr.annotation)))
+                self.putline("%s: %s " % (name, self.annotation_Str(expr.annotation)))
             else:
-                self.putline("%s" % name)
+                self.putline("%s " % name)
     
     def visit_DefNode(self, node):
         self.print_DefNode(node)
@@ -468,7 +550,8 @@ class PyiWriter(DeclarationWriter):
         
         # Check if using is ok with using type-hints before use...
         if self.use_typing:
-            self.putline("from %s import Generator" % typing_module)
+            self.putline("from %s import Any, Generator" % typing_module)
+            self.emptyline()
 
         node = self._visit(root)
         # added a new debugger incase needed for now...
@@ -483,3 +566,5 @@ class PyiWriter(DeclarationWriter):
     def pyi_code(self) -> str:
         return "\n".join(self.result.lines)
     
+
+   

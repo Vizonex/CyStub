@@ -47,9 +47,9 @@ I have already generated stubfiles for some of cython's nodes in order to help m
 Now that I come to think of it . It might not be a bad idea to have the tool scan for classes and 
 parts of functions before-hand as a two step method rather than just one, like an external Cython TreeVisitor for visiting different varibale Types, C structures and Python Classes beforehand use so that way when it's time to write down all the definitions. They will more likely be avalible when it's time to write them all down... 
 
-I'll also try to make a smarter system so that it's not scanning one entirely one file so that way all imported modules and including all `.pxi` `.py` `.pyx` and `.pxd` and all external definitions in files are also being accounted for like a roll-call/head-count ... 
+I'll also try make a smarter system so that it's not scanning one entirely one file so that way all imported modules and including all `.pxi` `.py` `.pyx` and `.pxd` and all external definitions in files are also being accounted for like a roll-call/head-count ... 
 
-Once the system works, I'll then start optimizing. The other thing I thought about was using quotes when the object hasn't appeared or been declared yet after the object has been declared. This may require a new-class maybe that can be a new argument of it's own.
+One the system works I'll then start optimizing. The other thing I thought about was using quotes when the object hasn't appeared or been declared yet after a the roll-call. This may require a new-class maybe that can be a new argument of it's own.
 
 This might require a rewrite of what I've done so far but I'll upload another file before called VariableCatcher or VariableRegistry unlike the one already made. Which aims to read nodes for all of the following
 
@@ -57,7 +57,7 @@ This might require a rewrite of what I've done so far but I'll upload another fi
 - cdef classes and python classes so they can be annoted when quotes are not nessesary...
 - I'll be sure regristry is fast by using a dictionary for help this will make especially larger files easier to load. This however might just be an extra flag so that systems that don't have a whole lot of ram avalible can ignore this feature if needed.
 
-Here's a visual representation of exactly what I'm referring to:
+Here's a visual representation of exactly what I'm reffering to:
 ```python
 # -- example.pyi --
 
@@ -92,3 +92,19 @@ def faster_utf8(raw_data : bytes, size:int = 0) -> str:...
 ```
 
 I'll go into more details about this when I have the chance to resume it. In the meantime I'll work on the pre-variable-visitor build to work more on this concept of capturing variables before writing...
+
+- 6/30/2023: So as I have shown before that we need to be able to translate values and return types and yesterday I made a video about this new feat go and see it if you havent already https://www.youtube.com/watch?v=hIjV9vX0uiI 
+
+So what exactly needs to be done before we can call it good to be merged to cython?
+There's serveral conditions that I would like to be met before I can say that it's over luckily the orginal author taclked most of these things for us and only needed a few changes from my end to meet expectations and compatability with `0.29.35` this is a list of what items were still being missed out on...
+
+- 1. If a Function does not have a python return type typehinted or annotated in C or Python fasion then have the node figure out where to get the last function or item being yielded by python's `def` function. If this cannot be done fallback to
+either `-> Generator[Any, None, None]:...` if the object is a generator and the typing module flag is enabled as an argument as well as `-> Any:...` otherwise do `-> object:...` which is the closest possible guess, otherwise if all fails for our end let the user resolve it. However it would be smart to find a way to eliminate or avoid this problem all together as the more functions that were written in cython, __the more time ads up from the user's side__ . __That's Not Good at all__. Finding an effective methoad to bring up the return value of the `FuncDefNode` for all
+normally defined functions will be one of this repository's main priorities that differ from the original author's work...
+
+- 2. Keeping the code nice and clean when and where ever it can be achived. For now my code may look messy to some since I'm trying to temporarly use annotations until it works correctly. Dont be upset if I end up changing anything this code is still prone to rewrites due to the fact that I'm still playing around with it until it can be memorized by me. This is why I have annotations in place in some of my functions for now. Then whenever someone else were to tell me that my annotations are no longer required I will be able to simply remove all of them when we start to do our pr to cython. 
+
+- 3. Good Cython Code samples would be nice to get our hands on for testing and unittesting. I'll post a markdownfile soon where you can send me a pull request to have your module be added to a list for testing it. If you have valid cython code and you want to see your repository tested in my research please let me know by adding a link to your repository and the name of your library. I'll make another markdown for the list of repositories in order to test for automated typehinting completeness such as finding `yield` keywords and `return` keywords. We will also be looking for obscure libraries and modules that utilize real cython code like `pyduktape2` to use in our experimentation. The more code we get our hands on the more sturdy our future compiler will be at reconizing different nodes , values 
+ and types...
+
+- 4. Allowing for flags to be set to also allow for cython's pure python type variables over using a `Union` with `fused` if using cython's shadow typehints are enabled. This may also share some benefits on the python side of things as well.

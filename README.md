@@ -3,7 +3,7 @@
 __CyStub__ is a `.pyi` Extension Stub Compiler tool for Cython users. 
 
 This tool was Inspired by this pull request seen here: https://github.com/cython/cython/pull/3818
-Which didn't make it into production...
+Which didn't make it into production and It was inpried by llparse and a few other dsls...
 
 
 Over the years people have had to overcome the hard challege of writing stubfiles manually and 

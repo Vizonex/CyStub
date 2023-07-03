@@ -113,3 +113,15 @@ normally defined functions will be one of this repository's main priorities that
 
 Back to this library, I'm almost done with it the concept and there's still a few things left. I'm almost finished with this but a new TreeVisitor Subclass will be needed and that will be a special function visitor that allows us hunt down the return values for python functions and tranlsate those off. I think I will be calling it the `ReturnValueVisitor`. After that I will start forking the cython branch and get to work on merging this newly improved feature for writing pyi stub files. Cython's pure python module was never really my style but I hope that this new feature will make things better and easier to work with compiled cython modules, I'll update you on more as time goes on. Never stop coding...
 
+- 7/3/2023 When I was looking into this a little bit more I found that It Might actually be alot smarter to maybe see about looking into using some of the parts from
+`AutoDocTransforms` to help us. The problem is that it uses a `Context` but we would have to bypass the embedsignature setting from the context, this way we could get this code to become alot cleaner. This will cost a rewrite but it seems to be worth it. We are very close to forking `Cython` And I can start planning where this could take place I was thinking that this could be done like so. This is a concept for that name of the setting that would need to take place when writing in cython.
+```cython
+# cython : language_level = 3
+# cython : compile_pyi_signatures = True
+# This will initally make the .pyi file This is different from
+# embedsignature which seems to not be accessable to VS Code which
+# maybe part of our problem that I find to be very dumb... - Vizonex
+```
+
+I was thinking of terms like `compile_pyi_signatures` `make_stubfile` `make_vs_code_readable` To generate the stubfile but only time will tell what the contributors for cython would like for it to actually say and do...
+

@@ -125,3 +125,9 @@ Back to this library, I'm almost done with it the concept and there's still a fe
 
 I was thinking of terms like `compile_pyi_signatures` `make_stubfile` `make_vs_code_readable` To generate the stubfile but only time will tell what the contributors for cython would like for it to actually say and do...
 
+
+- 7/6/2023 
+
+I couldn't seem to figure out how to make a return extractor for normal `def` functions yet but I'm planning to contact scoder again about the idea of bringing in this pyi-writer again but this time with a much cleaner interface for this writer in particular. What I would like is help with making the final version look as clean as possible while using existing writer to make it possible. I think I will likely use a context with it but we shall see. I am however going to start forking this soon as possible since I am starting a new job that's only going to add to my workload if I don't get this done anytime sooner than now...
+
+

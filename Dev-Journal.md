@@ -130,4 +130,5 @@ I was thinking of terms like `compile_pyi_signatures` `make_stubfile` `make_vs_c
 
 I couldn't seem to figure out how to make a return extractor for normal `def` functions yet but I'm planning to contact scoder again about the idea of bringing in this pyi-writer again but this time with a much cleaner interface for this writer in particular. What I would like is help with making the final version look as clean as possible while using existing writer to make it possible. I think I will likely use a context with it but we shall see. I am however going to start forking this soon as possible since I am starting a new job that's only going to add to my workload if I don't get this done anytime sooner than now...
 
-
+- 7/17/2023
+  So This project is not dead I was just taking a long break but as I did the entire way cython had the context cut out for me has been completely shifted and altered because now cython 3.0 is released and some APIs that I was working with are now broken :( so I'm going to have to likely rewrite everything which is an absolute bummer. It's too back that there is no backwards compatability so were going to have to come up with other options if we want this dream to continue to live on. I'll be back within 2 days to work more on this but chnaging the way the system is now might be a must as well as my last resort...

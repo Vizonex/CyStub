@@ -132,5 +132,13 @@ as well since I was able to get some guidence from them with winloop. You will n
 ## Video
 - https://www.youtube.com/watch?v=hIjV9vX0uiI
 
-## Cython 3.0 is out but there was a cost
-The Apis here no longer work thanks to newer api calls so I'll have to get into contact with the same cython contributors that I was talking to before if the project is to ever see the light of day again...
+## Found a Solution for Cython 3.0 
+```python
+def make_tree_from_file(file:str,options:Optional[CompilationOptions]=None):
+    if not options:
+        options = CompilationOptions(defaults=default_options)
+    ctx = Context.from_options(options)
+    init_thread()
+    return make_compilation_tree(file,ctx) , ctx
+```
+init_thread was the issue so I'll make a pull request shortly...

@@ -132,3 +132,50 @@ I couldn't seem to figure out how to make a return extractor for normal `def` fu
 
 - 7/17/2023
   So This project is not dead I was just taking a long break but as I did the entire way cython had the context cut out for me has been completely shifted and altered because now cython 3.0 is released and some APIs that I was working with are now broken :( so I'm going to have to likely rewrite everything which is an absolute bummer. It's too back that there is no backwards compatability so were going to have to come up with other options if we want this dream to continue to live on. I'll be back within 2 days to work more on this but chnaging the way the system is now might be a must as well as my last resort...
+
+- 9/14/2023
+  Currently programming a new way to handle unresolved return object types in cython since the behavior of typhinting can greatly affect the outcomes of how a python library or module works. Also you need to imagine how overwriting a function after making changes to a cython module could be very annoying and rewriting the pypi typehints would be a pain to redefine the return values for so a new solution will be needed to overcome these challengaes. The pipeline for it would go something like this which will require new TreeVisitor Subclasses. The goal will be to be clean with them no overdoing it. It should be as simple to read as possible for the even clueless programmers can tell what's going on.
+
+## Step 1 - TypeDefVisitor
+-    1. A TypeDefVisitor Looks for cdef objects and external values brought from C/C++ or have been declared in Cython itself. Now I would merge this with the ReturnTypeVisitor which is the next step but my goal is not to be confusing.
+     2. When an Object has been found it will throw it into a translator or a dictionary with a str or PyrexType likely will do `dict[str,PyrexType]` or something fancy like that to help with type translation to the lowest C or Python variable so that translating the return type to python will be very simple. 
+     3. When Finished, the TypeDefVisior will pass the translator dictionary or something simillar along to the `ReturnTypeVisitor` which is step 2
+
+## Step 2-A NameRecursor
+    - I better talk about what this new object is and what it is used for but basically it will be used to help organize data and allows for class Objects to be added to a special stack and is used to carry around function information. To illustrate I have thrown in an example to help you better undertsand how the NameRecursor's patterns with be handled...
+```python
+def func_A(self):
+    ...
+class B:
+    def __init__(self):
+        ...
+    def func(self):
+        ...
+```
+    When picking up this information it will organize a string that will be used to help organize a return object table making it simple and easy to find the functions that it needs to have and I will now demonstrate it's name and stack objects visually for you to see...
+
+1.     stack -> ["func_A"]
+       name -> func_A
+   Stack will pick up func_A and then drop it because there's noting after it...
+2.    stack -> ["B"]
+      name -> "B"
+    Stack finds an object class Named `B` and it will add it to the stack
+3.     stack -> ["B","__init__"]
+       name -> "B.__init__"
+    So why does this happen this way you might ask? Simply because joining that stack with a dot will help create a better visual and not just for debugging but allow us to easily find this object again when we have put it onto the table so that all return annotations can later be looked up this will have the same behavior for B's func() method and that is all you need to really understand how this new `NameRecursor` class object will work...
+
+ 
+## Step 2-B - ReturnTypeVisitor 
+    (it will be a Subclass of likely a ScopeVisitor object because it carries the function and class Nodes which is in my opion is extremely helpful to have in our case...)
+-    1. A `ReturnTypeVisitor` object or RTV for short is a Cython Node Visitor for collecting Nodes With No Return Annotations and making a table for those missing objects with either a PyrexType object or string with it's name when a return object has been found for it. A Speical Table (Not the TypeDefVisitor's but it will be used for help as well) it will also use the NameRecursor to help organize this data better and creates namespaces with simillar classes to keep everything clean and organized for the final stage of the plan. the table object will be a dictionary carrying str keys with Seqences of PyrexTypes or Strings if needed I plan to program a `__hash__` function for these objects as needed to use with a `set()` to keep these return values it gets to be organized. Another Variable added will be the TypeDefVisitor's translation table to help optimize down to more famillair objects whenever found so that a better return object can be defined a little bit more clearly.
+  
+     2. When any function is found (Yes Even a C-Function(aka cdef or cpdef function)) it will check for a declaration first before adding it to the stack otheriwse it will visit it's children to find some answers this is true for all python objects. The NameRecursor will takes these names and add them to the table 
+     3. When a `ReturnStatNode` or YieldNode is found it will add those objects to the function that the NameRecursor assigns to it and it will throw them into a sequence on the table 
+     if there are no objects in the return or yeild it will mark that return Object as python's definition of `None` or `void` if it's a c function, it's better that way if a yeild or return Node is calling a call at the end for a function these will have to be looked up at a later time to prevent lookup errors so they will be simply ignored and then later updated before converting our `.pyx` module to a suitable typehinting module.
+
+## Step 3  PostReturnTypeVisitor 
+    - basically takes all the return calls that we had saved for later and convert them now so that the types are accurately laid out for the final stage...
+
+## Step 4  PyiWriter (The Final Step)
+    - You've already seen it if you've seen this library but all missing return annotations will have the ReturnTypeVisitor's table with it on hand so it can be ready to add in addtional resources whenever a return annotation is not avalible to us or hasn't been defined yet by the programmer who defined the function in Cython. The table is then called and it's Sequence can be joined as either a `typing.Union` object or joined with a pipe '|' in python versions 3.10 and onward. I work with 3.9.15 currently for compatability and support for later versions of python but this is everything in my plan explaned to the best of my abilities. If this were implemented in cython there should be a flag inside of the cythonize command to do so, I just think it's a little insane that some people would freak out over writing the pyi modules when pip is installing the cython library before it is used by the programmed who installed the package. instead it should be compiled before releasing it into the wild but that is just my personal opion on that subject. Anyways I hope to get ready to implement this in I have had numerous failed attempts but I think this time with these 4 steps in mind this should work now that I've explained everything in greater detail. - Vizonex
+

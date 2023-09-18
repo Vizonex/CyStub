@@ -5,6 +5,12 @@ __CyStub__ is a `.pyi` Extension Stub Compiler tool for Cython users.
 This tool was Inspired by this pull request seen here: https://github.com/cython/cython/pull/3818
 Which didn't make it into production and It was inpried by llparse and a few other dsls...
 
+## Goals
+My Current goals with this implementation are to do all of the following 
+
+- Prove that it is possible to create an actual compiler that cython could interact with in theory 
+- Predict Return Type Annotations when people are too lazy to do so. Which is the hardest part of the whole process. (I actually got part of this done today but it requires some of the steps from cython's own pipeline to be executed (also figured out that Pyrex Types is the best route to take for this but they can be very unfriendly to builtin types) Snippet of this code will be on this repository soon with the foldername (return-value-expermentation RVE for short))
+- This library is mainly an experimentation area but you can call it a lab if you want to The real goal will be to make a pull request to the cython repository when I am done. 
 
 Over the years people have had to overcome the hard challege of writing stubfiles manually and 
 the incompatabilty with VS Code has thrown many people off including myself , some of which takes hours just to write manually down,
@@ -49,6 +55,7 @@ Compiling cython code. Here's an example if you need more help look into what I'
 ```
 python Cystub.py -o output yourmodule.pyx othermodule.pxd 
 ```
+
 
 ## Example of What this tool can now do
 `pyduktape2` can now be compiled normally and here's it's ouput I'm very proud of what were starting to accomplish over here. Note that I made no changes to the stubfile and that this is actually real. And now typedefines get their own special python converter to help translate the data into something that python has acess to Note that spaces are not meant to be perfect. I wasn't expecting perfection more than I was with variables being accessed and within reach.

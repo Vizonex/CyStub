@@ -53,8 +53,7 @@ class NameRecursor:
         to lookup names for the module's scope"""
         return self.stack[-1]
 
-    # To be less confusting...
-    set_func = inc 
+
 
     def has_class(self):
         return len(self.stack) > 1 or self.stack_has_class
@@ -69,7 +68,7 @@ class NameRecursor:
 
 # Inspired by the Cython's Scope-Visitor but made for a much different Purpose
 # which is to propperly track down all return type variables and later define 
-# thier return annotations...
+# their return annotations...
 
 class NamedVisitor(ScopeTrackingTransform, SkipDeclarations):
     """Used to help subclass different Visitors with their propperly given names

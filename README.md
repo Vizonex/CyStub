@@ -5,6 +5,10 @@ __CyStub__ is a `.pyi` Extension Stub Compiler tool for Cython users.
 This tool was Inspired by this pull request seen here: https://github.com/cython/cython/pull/3818
 Which didn't make it into production and It was inpried by llparse and a few other dsls...
 
+## We Have Officially Begun Forking Cython
+It has now been set in motion and I'll be implementing everything from Cystub to this portion I'll try to get help as to were it should be added and I'll use the previous author's fork if I need help with coming up with the implementation. But basically my goal is to merge it [my fork](https://github.com/Vizonex/cython) Feel free to hop in and add feedback as I go along we will add a new file called `PyiWriter.py` to the Compiler Folder if you're curious. I'm now re-writing the Cytstub Code to now put in the final draft.
+
+
 ## Goals
 My Current goals with this implementation are to do all of the following 
 

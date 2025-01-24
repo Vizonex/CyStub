@@ -156,7 +156,7 @@ init_thread was the issue so I'll make a pull request shortly...
 
 ## The Bad news
 This Concept/Idea Never really made it into Cython due to the following events or issues...
-- This code never really saw the light of because it felt more difficult to work with than I had originally expceted, here I am about a year later looking into it again
+- This code never really saw the light of day because it felt more difficult to work with than I had originally expceted, here I am about a year later looking into it again
 what kinda sucks is what was asked of me in order to make everything work with cython itself. 
 - With Support for 2.8 being requested at minimum and with me working in `Version 3.9` you would be able to figure out right away just what problems may arise and with me wanting not to
 screw up my gigantic pull request in the past made things extra complicated. With all the pressure to complete this I ended up silently giving up. 

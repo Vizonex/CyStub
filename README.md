@@ -153,3 +153,12 @@ def make_tree_from_file(file:str,options:Optional[CompilationOptions]=None):
     return make_compilation_tree(file,ctx) , ctx
 ```
 init_thread was the issue so I'll make a pull request shortly...
+
+## The Bad news
+- This code never really saw the light of day because it felt more difficult to work with than I had originally expceted, here I am about a year later looking into it again
+what kinda sucks is what was asked of me in order to make everything work with cython itself. 
+- With Support for 2.8 being requested at minimum and with me working in `Version 3.9` you would be able to figure out right away just what problems may arise and with me wanting not to
+screw up my gigantic pull request in the past made things extra complicated. With all the pressure to complete this I ended up silently giving up. 
+- In the future when support for typehinting is implemented into the compiler it might be (at least for me) some encouragement for me to come back to this again to try
+and finish this up but we shall see what the future of cython holds. Maybe someone else will be the chosen one to complete this task? (IDK. But at least I have set forth a path if someone wants to pick up where I left off.)
+
